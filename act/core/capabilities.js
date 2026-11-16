@@ -1,7 +1,10 @@
-// capabilities.js — v1.1.0 · who may do what; authority shrinks along a chain · changelog: act/CHANGELOG.md#actcorecapabilitiesjs
+// capabilities.js — v1.1.1 · who may do what; authority shrinks along a chain · changelog: act/CHANGELOG.md#actcorecapabilitiesjs
 // SPDX-License-Identifier: Apache-2.0
 // (C) John Koperwas 2026
 // who may do what, and authority that SHRINKS along a chain (ACTBUS docs/capability-architecture.md §1 item 1, §9 item 3)
+// 1.1.1 (171126, issue #18): effective() treats an ABSENT targets field as an empty list — a grant that omits targets no longer drops
+// out of a chain's intersection, so an identity that omits targets for a target-taking action reaches no target alone or through a
+// called script (1.1.0 let it inherit the other identities' hosts; alone, the same grant reached nothing).
 // 1.1.0 (ACTBUS docs/proteus-k.md §5): grant flag strictControl — this identity wants rule (a) for this action: a call made under a
 // model/web-labelled condition (ctl) is treated as tainted. If ANY identity in the chain sets it, the chain is strict.
 // identities.json (admin-written):
@@ -13,7 +16,8 @@
 //              targets       allow-list for tentacles (hosts for fetch, addresses for email); absent = no targets
 //              allowTainted  true = this identity accepts model- or web-labelled input for this world action (explicit rule)
 //   models   language models it may use (the model action)       rate  messages per minute (default 120)
-// effective(chain, action): the grant that EVERY identity in the chain holds — targets intersected, allowTainted AND-ed,
+// effective(chain, action): the grant that EVERY identity in the chain holds — targets intersected (a grant that omits the targets
+// field is an empty list: it reaches no target, and it empties the chain's intersection), allowTainted AND-ed,
 // models intersected. If any identity in the chain lacks the action, there is no grant (the confused-deputy rule).
 'use strict';
 const fs = require('fs');
@@ -57,7 +61,7 @@ function fromList(list) {
 
 const intersect = (lists) => lists.reduce((acc, l) => acc.filter((x) => l.includes(x)));
 
-// → null (refused) or { targets: [...] | null, allowTainted: bool, strictControl: bool }
+// → null (refused) or { targets: [...], allowTainted: bool, strictControl: bool }
 function effective(ids, chain, action) {
   const grants = [];
   for (const name of chain) {
@@ -65,9 +69,9 @@ function effective(ids, chain, action) {
     const g = id.actions[action]; if (!g) return null;
     grants.push(g);
   }
-  const withTargets = grants.filter((g) => g.targets !== undefined);
+  if (!grants.length) return null;   // an empty chain holds the action for nobody
   return {
-    targets: withTargets.length ? intersect(withTargets.map((g) => g.targets)) : null,
+    targets: intersect(grants.map((g) => (g.targets === undefined ? [] : g.targets))),   // 1.1.1: absent targets = no targets, in a chain too
     allowTainted: grants.every((g) => g.allowTainted === true),
     strictControl: grants.some((g) => g.strictControl === true),
   };

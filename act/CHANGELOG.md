@@ -102,6 +102,7 @@ The entries below were moved verbatim from the file headers of `act/**` and `act
 
 ## act/core/capabilities.js
 
+- v1.1.1 (171126, issue #18: effective() treats an ABSENT targets field as an empty list — a grant that omits targets no longer drops out of a chain's intersection, so an identity that omits targets for a target-taking action reaches no target alone or through a called script; 1.1.0 let it inherit the other identities' hosts, while alone the same grant reached nothing)
 - v1.1.0 (301026)
 
 ## act/core/durable.js
@@ -256,6 +257,7 @@ The entries below were moved verbatim from the file headers of `act/**` and `act
 
 ## act/test/core.test.js
 
+- v1.1.3 (171126: capabilities 1.1.1, issue #18 — 2 tests that fail on capabilities 1.1.0: a grant that omits targets does not drop out of a chain's intersection (effective() unit), and the bus refuses a caller that omits targets the host an action that runs as one who lists it would fetch)
 - v1.1.2 (111126 · v0.54.2: the two test registries with native actions that carry `runsAs` (makeBus, and the service world) load with `runsAsAnyKindForBusTests: true`, since registry.js 1.3.0 refuses `runsAs` on any kind but script by default; no test changed name or assertion)
 - v1.1.1 (081126 · v0.53.6: test data renamed to neutral model and node names (model-a, node-a, node-b); no test name changed)
 - v1.1.0 (061126: 0.53.2 — the allow-list is refused by the bus, NO_TARGET; 3 tests that fail on bus 1.4.4)

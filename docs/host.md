@@ -43,7 +43,7 @@ A record has `uniqueId`, `loginId`, `role`, `auth` and `actGrants` (a JSON strin
 | `operatedByPerson` | no | `true` when a person operates this EUser (a phone, say): what it sends is labelled `person`. Refused together with an action that brings web or model text into the EUser itself, such as `fetch`, `model` or `file-read` |
 
 Each action's options:
-- `targets`: at most 50. What a target is depends on the action: a lower-case host name, optionally `:port`, for `fetch` (`http://host` for plain HTTP); a lower-case address that is on `MAIL_ALLOW` for `email`; an identity name (`u-…`) for `send` (whom it may send to) and `messages` (who may send to it). Targets for an action whose registry entry declares no `targetForm` are refused, at save and at load: that is every action but `fetch`, `email`, `send` and `messages`.
+- `targets`: at most 50. What a target is depends on the action: a lower-case host name, optionally `:port`, for `fetch` (`http://host` for plain HTTP); a lower-case address that is on `MAIL_ALLOW` for `email`; an identity name (`u-…`) for `send` (whom it may send to) and `messages` (who may send to it). Targets for an action whose registry entry declares no `targetForm` are refused, at save and at load: that is every action but `fetch`, `email`, `send` and `messages`. For those four, a grant that omits `targets` reaches no target — alone or through a called script (capabilities.js 1.1.1): write the list out, `[]` if it should reach nothing.
 - `allowTainted: true`: text from the web or a model may reach this world action. An explicit rule; leave it out unless it is meant.
 - `strictControl: true`: refuse this world action when it would run under a condition that depends on web or model text, unless `allowTainted` is also given.
 
